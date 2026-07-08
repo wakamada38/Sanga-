@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1b4d3b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sang'a Payroll">
+<title>Sang'a Payroll Register</title>
+<style>
+  :root{
+    --forest:#1b4d3b;
+    --forest-dark:#123328;
+    --forest-light:#2d6a4f;
+    --gold:#c9a227;
+    --gold-light:#e0c25e;
+    --cream:#f8f6ef;
+    --card:#ffffff;
+    --ink:#1e2a24;
+    --muted:#6b7a72;
+    --danger:#a33d3d;
+    --border:#e2ddca;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--cream);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--forest) 0%,var(--forest-dark) 100%);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header h1{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:.2px;}
+  header .sub{font-size:.72rem;opacity:.85;margin-top:2px;color:var(--gold-light);}
+  nav{display:flex;overflow-x:auto;background:var(--forest-dark);position:sticky;top:60px;z-index:49;-webkit-overflow-scrolling:touch;}
+  nav button{flex:1;min-width:84px;background:none;border:none;color:#cfe0d6;padding:11px 6px;font-size:.74rem;font-weight:600;border-bottom:3px solid transparent;white-space:nowrap;}
+  nav button.active{color:#fff;border-bottom:3px solid var(--gold);background:rgba(255,255,255,.06);}
+  main{padding:14px;max-width:900px;margin:0 auto;padding-bottom:70px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .card h2{margin:0 0 10px;font-size:1rem;color:var(--forest-dark);border-left:4px solid var(--gold);padding-left:8px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:480px){.grid{grid-template-columns:1fr;}}
+  label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:3px;font-weight:600;}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;background:#fffef9;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--forest-light);border-color:var(--forest-light);}
+  .field{margin-bottom:10px;}
+  .btn{display:inline-block;background:var(--forest);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;}
+  .btn:active{background:var(--forest-dark);}
+  .btn.gold{background:var(--gold);color:var(--forest-dark);}
+  .btn.outline{background:none;border:1.5px solid var(--forest);color:var(--forest);}
+  .btn.danger{background:var(--danger);}
+  .btn.small{padding:6px 10px;font-size:.75rem;}
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  th{background:var(--forest);color:#fff;padding:8px 6px;text-align:left;position:sticky;top:0;}
+  td{padding:7px 6px;border-bottom:1px solid var(--border);}
+  tr:nth-child(even) td{background:#fbfaf4;}
+  .table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:700;}
+  .pill.active{background:#dcefe3;color:var(--forest-dark);}
+  .pill.inactive{background:#f3e0e0;color:var(--danger);}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:.85rem;}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  @media(max-width:480px){.summary-grid{grid-template-columns:1fr 1fr;}}
+  .stat{background:var(--forest);color:#fff;border-radius:9px;padding:12px 10px;text-align:center;}
+  .stat .num{font-size:1.25rem;font-weight:800;color:var(--gold-light);}
+  .stat .lbl{font-size:.66rem;opacity:.9;margin-top:2px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(15,25,20,.55);display:flex;align-items:flex-end;justify-content:center;z-index:100;}
+  .modal{background:#fff;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:16px;}
+  .modal h3{margin:0 0 12px;color:var(--forest-dark);}
+  .close-x{float:right;background:none;border:none;font-size:1.3rem;color:var(--muted);cursor:pointer;}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--forest-dark);color:#fff;padding:10px 18px;border-radius:20px;font-size:.82rem;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.25);}
+  .section-title{font-size:.78rem;font-weight:700;color:var(--forest);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  .divider{border:none;border-top:1px dashed var(--border);margin:12px 0;}
+  .payslip{background:#fff;border:2px solid var(--forest);border-radius:10px;padding:16px;}
+  .payslip .ps-head{text-align:center;border-bottom:2px solid var(--gold);padding-bottom:10px;margin-bottom:10px;}
+  .payslip .ps-head h2{border:none;padding:0;color:var(--forest-dark);}
+  .ps-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem;border-bottom:1px dotted var(--border);}
+  .ps-row.total{font-weight:800;border-top:2px solid var(--forest);border-bottom:none;margin-top:6px;padding-top:8px;font-size:.95rem;color:var(--forest-dark);}
+  .net-highlight{background:#fffbe6;border:1px solid var(--gold);border-radius:8px;padding:10px;margin-top:10px;text-align:center;}
+  .net-highlight .amt{font-size:1.35rem;font-weight:800;color:var(--forest-dark);}
+  select.role-badge-Teacher{}
+  @media print{
+    header,nav,.no-print{display:none!important;}
+    body{background:#fff;}
+    main{padding:0;max-width:100%;}
+    .payslip{border:2px solid #000;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sang'a Payroll Register</h1>
+  <div class="sub" id="syncStatus">Connecting…</div>
+</header>
+
+<nav id="tabNav"></nav>
+
+<main id="app"></main>
+
+<script type="module">
+/* ============ FIREBASE (cloud sync) ============ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ⬇️ PASTE YOUR FIREBASE CONFIG HERE (from Firebase Console → Project Settings → Your apps)
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE_PROJECT.appspot.com",
+  messagingSenderId: "PASTE_SENDER_ID",
+  appId: "PASTE_APP_ID"
+};
+
+let db = null, auth = null, firebaseReady = false;
+try{
+  const fbApp = initializeApp(firebaseConfig);
+  auth = getAuth(fbApp);
+  db = getFirestore(fbApp);
+}catch(e){
+  console.error('Firebase init failed', e);
+}
+
+function setSyncStatus(text, cls){
+  const el = document.getElementById('syncStatus');
+  if(el){ el.textContent = text; el.style.color = cls || ''; }
+}
+
+/* ============ DATA LAYER (Firestore-backed, live sync) ============ */
+const ROLES = ["Teacher","Cook","Watchman","Matron","Groundskeeper","Driver","Bursar/Admin","Cleaner","Other"];
+const EDITOR_KEY = 'sanga_editor_name';
+
+let state = { staff: [], payroll: {} };
+let activeTab = 'dashboard';
+let currentPeriod = defaultPeriod();
+let staffUnsub = null, payrollUnsub = null;
+
+function getEditorName(){
+  return localStorage.getItem(EDITOR_KEY) || '';
+}
+function ensureEditorName(){
+  let name = getEditorName();
+  if(!name){
+    name = prompt("What's your name? (shown next to your edits so staff can tell who changed what)") || 'Staff';
+    localStorage.setItem(EDITOR_KEY, name.trim() || 'Staff');
+  }
+  return getEditorName();
+}
+
+function startSync(){
+  if(!db){
+    setSyncStatus('⚠️ Cloud sync not configured', '#f3c969');
+    render();
+    return;
+  }
+  setSyncStatus('Connecting…');
+  onAuthStateChanged(auth, (user) => {
+    if(user){ attachListeners(); }
+  });
+  signInAnonymously(auth).catch((e) => {
+    console.error('Auth failed', e);
+    setSyncStatus('⚠️ Sync error — check config/rules', '#e08a8a');
+  });
+}
+
+function attachListeners(){
+  if(staffUnsub) staffUnsub();
+  if(payrollUnsub) payrollUnsub();
+
+  staffUnsub = onSnapshot(collection(db, 'staff'), (snap) => {
+    state.staff = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    firebaseReady = true;
+    setSyncStatus('🟢 Synced — live', '#a9e0c1');
+    render();
+  }, (err) => {
+    console.error('staff listener error', err);
+    setSyncStatus('⚠️ Sync error — check Firestore rules', '#e08a8a');
+  });
+
+  payrollUnsub = onSnapshot(collection(db, 'payroll'), (snap) => {
+    const grouped = {};
+    snap.docs.forEach(d => {
+      const data = d.data();
+      const period = data.period;
+      if(!grouped[period]) grouped[period] = {};
+      grouped[period][data.staffId] = data;
+    });
+    state.payroll = grouped;
+    render();
+  }, (err) => {
+    console.error('payroll listener error', err);
+  });
+}
+
+async function fsSaveStaff(id, data){
+  await setDoc(doc(db, 'staff', id), { ...data, updatedAt: serverTimestamp(), updatedBy: getEditorName() });
+}
+async function fsDeleteStaff(id){
+  await deleteDoc(doc(db, 'staff', id));
+}
+async function fsSavePayroll(period, staffId, data){
+  const docId = period + '__' + staffId;
+  await setDoc(doc(db, 'payroll', docId), { ...data, period, staffId, updatedAt: serverTimestamp(), updatedBy: getEditorName() });
+}
+function newStaffId(){
+  return 'st_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function defaultPeriod(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function periodLabel(p){
+  const [y,m] = p.split('-');
+  const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return names[parseInt(m,10)-1] + ' ' + y;
+}
+function money(n){
+  n = Number(n)||0;
+  return 'KES ' + n.toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function uid(){ return newStaffId(); }
+
+function toast(msg, isError){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  if(isError) t.style.background = '#a33d3d';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2400);
+}
+
+/* ============ NAV ============ */
+const TABS = [
+  {id:'dashboard', label:'Dashboard'},
+  {id:'staff', label:'Staff'},
+  {id:'payroll', label:'Payroll'},
+  {id:'reports', label:'Reports'},
+  {id:'settings', label:'Settings'}
+];
+
+function renderNav(){
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = TABS.map(t=>
+    `<button class="${t.id===activeTab?'active':''}" onclick="switchTab('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+function switchTab(id){
+  activeTab = id;
+  renderNav();
+  render();
+}
+
+/* ============ RENDER ROUTER ============ */
+function render(){
+  const app = document.getElementById('app');
+  if(activeTab==='dashboard') app.innerHTML = renderDashboard();
+  else if(activeTab==='staff') app.innerHTML = renderStaff();
+  else if(activeTab==='payroll') app.innerHTML = renderPayroll();
+  else if(activeTab==='reports') app.innerHTML = renderReports();
+  else if(activeTab==='settings') app.innerHTML = renderSettings();
+}
+
+/* ============ DASHBOARD ============ */
+function renderDashboard(){
+  const activeStaff = state.staff.filter(s=>s.status==='Active');
+  const periodData = state.payroll[currentPeriod] || {};
+  let totalNet = 0, totalGross = 0, processed = 0;
+  Object.values(periodData).forEach(p=>{
+    totalNet += calcNet(p);
+    totalGross += calcGross(p);
+    processed++;
+  });
+  const roleCounts = {};
+  activeStaff.forEach(s=> roleCounts[s.role] = (roleCounts[s.role]||0)+1 );
+
+  return `
+  <div class="card">
+    <h2>Overview — ${periodLabel(currentPeriod)}</h2>
+    <div class="summary-grid">
+      <div class="stat"><div class="num">${activeStaff.length}</div><div class="lbl">Active Staff</div></div>
+      <div class="stat"><div class="num">${processed}</div><div class="lbl">Payroll Processed</div></div>
+      <div class="stat"><div class="num" style="font-size:1rem">${money(totalNet)}</div><div class="lbl">Total Net Pay</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Staff by Role</h2>
+    ${Object.keys(roleCounts).length===0 ? '<div class="empty">No staff added yet</div>' :
+      Object.entries(roleCounts).map(([r,c])=>`<div class="ps-row"><span>${r}</span><span>${c}</span></div>`).join('')
+    }
+  </div>
+  <div class="card">
+    <h2>Quick Actions</h2>
+    <div class="row-actions">
+      <button class="btn" onclick="switchTab('staff'); openStaffModal();">+ Add Staff</button>
+      <button class="btn gold" onclick="switchTab('payroll')">Run Payroll</button>
+    </div>
+  </div>`;
+}
+
+/* ============ STAFF ============ */
+function renderStaff(){
+  const rows = state.staff.map(s=>`
+    <tr>
+      <td><strong>${escapeHtml(s.name)}</strong><br><span style="color:var(--muted);font-size:.72rem">${s.role}</span></td>
+      <td>${money(s.basicSalary)}</td>
+      <td><span class="pill ${s.status==='Active'?'active':'inactive'}">${s.status}</span></td>
+      <td>
+        <button class="btn small outline" onclick="openStaffModal('${s.id}')">Edit</button>
+        <button class="btn small danger" onclick="deleteStaff('${s.id}')">Del</button>
+      </td>
+    </tr>`).join('');
+
+  return `
+  <div class="card">
+    <h2>Staff Register (${state.staff.length})</h2>
+    <button class="btn" onclick="openStaffModal()">+ Add Staff Member</button>
+  </div>
+  <div class="card">
+    ${state.staff.length===0 ? '<div class="empty">No staff members yet. Tap "+ Add Staff Member" to begin.</div>' : `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name / Role</th><th>Basic Salary</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`}
+  </div>`;
+}
+
+function openStaffModal(id){
+  const s = id ? state.staff.find(x=>x.id===id) : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg';
+  modal.id = 'staffModal';
+  modal.innerHTML = `
+    <div class="modal">
+      <button class="close-x" onclick="closeModal('staffModal')">&times;</button>
+      <h3>${s ? 'Edit Staff' : 'Add Staff'}</h3>
+      <div class="field"><label>Full Name</label><input id="f_name" value="${s?escapeHtml(s.name):''}"></div>
+      <div class="grid">
+        <div class="field"><label>Role</label>
+          <select id="f_role">${ROLES.map(r=>`<option ${s&&s.role===r?'selected':''}>${r}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Status</label>
+          <select id="f_status">
+            <option ${s&&s.status==='Active'?'selected':''}>Active</option>
+            <option ${s&&s.status==='Inactive'?'selected':''}>Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Phone</label><input id="f_phone" value="${s?escapeHtml(s.phone||''):''}"></div>
+        <div class="field"><label>National ID No.</label><input id="f_idnum" value="${s?escapeHtml(s.idNumber||''):''}"></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Date Joined</label><input type="date" id="f_joined" value="${s?s.dateJoined||'':''}"></div>
+        <div class="field"><label>Basic Salary (KES)</label><input type="number" id="f_salary" value="${s?s.basicSalary:''}"></div>
+      </div>
+      <div class="row-actions">
+        <button class="btn" onclick="saveStaff('${s?s.id:''}')">Save</button>
+        <button class="btn outline" onclick="closeModal('staffModal')">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function closeModal(id){ const m = document.getElementById(id); if(m) m.remove(); }
+
+async function saveStaff(existingId){
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ toast('Name is required', true); return; }
+  const data = {
+    name,
+    role: document.getElementById('f_role').value,
+    status: document.getElementById('f_status').value,
+    phone: document.getElementById('f_phone').value.trim(),
+    idNumber: document.getElementById('f_idnum').value.trim(),
+    dateJoined: document.getElementById('f_joined').value,
+    basicSalary: parseFloat(document.getElementById('f_salary').value) || 0
+  };
+  const id = existingId || newStaffId();
+  try{
+    toast('Saving…');
+    await fsSaveStaff(id, data);
+    closeModal('staffModal');
+    toast('Staff saved');
+  }catch(e){
+    console.error('Save staff failed', e);
+    toast('⚠️ Save failed — check connection', true);
+  }
+}
+async function deleteStaff(id){
+  if(!confirm('Remove this staff member? Their past payroll records will be kept.')) return;
+  try{
+    await fsDeleteStaff(id);
+    toast('Staff removed');
+  }catch(e){
+    console.error('Delete staff failed', e);
+    toast('⚠️ Delete failed — check connection', true);
+  }
+}
+
+/* ============ PAYROLL ============ */
+function calcAllowances(p){ return (p.allowHouse||0)+(p.allowTransport||0)+(p.allowOther||0); }
+function calcOvertime(p){ return p.overtimeManual!=null && p.overtimeManual!=='' ? Number(p.overtimeManual) : (Number(p.otHours||0) * Number(p.otRate||0)); }
+function calcGross(p){ return Number(p.basicSalary||0) + calcAllowances(p) + calcOvertime(p); }
+function calcDeductions(p){ return (p.dedAdvance||0)+(p.dedNSSF||0)+(p.dedNHIF||0)+(p.dedOther||0); }
+function calcNet(p){ return calcGross(p) - calcDeductions(p); }
+
+function renderPayroll(){
+  if(!state.payroll[currentPeriod]) state.payroll[currentPeriod] = {};
+  const periodData = state.payroll[currentPeriod];
+  const activeStaff = state.staff.filter(s=>s.status==='Active');
+
+  const rows = activeStaff.map(s=>{
+    const p = periodData[s.id];
+    const done = !!p;
+    return `<tr>
+      <td><strong>${escapeHtml(s.name)}</strong><br><span style="font-size:.72rem;color:var(--muted)">${s.role}</span></td>
+      <td>${done ? money(calcNet(p)) : '<span style="color:var(--muted)">—</span>'}</td>
+      <td><span class="pill ${done?'active':'inactive'}">${done?'Processed':'Pending'}</span></td>
+      <td><button class="btn small ${done?'outline':''}" onclick="openPayrollModal('${s.id}')">${done?'Edit':'Process'}</button></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <h2>Payroll Period</h2>
+    <div class="field">
+      <label>Select Month</label>
+      <input type="month" id="periodPicker" value="${currentPeriod}" onchange="changePeriod(this.value)">
+    </div>
+  </div>
+  <div class="card">
+    <h2>${periodLabel(currentPeriod)} — ${activeStaff.length} Active Staff</h2>
+    ${activeStaff.length===0 ? '<div class="empty">No active staff. Add staff first.</div>' : `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Net Pay</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`}
+  </div>`;
+}
+function changePeriod(val){ currentPeriod = val; render(); }
+
+function openPayrollModal(staffId){
+  const s = state.staff.find(x=>x.id===staffId);
+  const existing = (state.payroll[currentPeriod]||{})[staffId];
+  const p = existing || { basicSalary: s.basicSalary, allowHouse:0, allowTransport:0, allowOther:0, otHours:0, otRate:0, overtimeManual:'', dedAdvance:0, dedNSSF:0, dedNHIF:0, dedOther:0, notes:'' };
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg';
+  modal.id = 'payModal';
+  modal.innerHTML = `
+    <div class="modal">
+      <button class="close-x" onclick="closeModal('payModal')">&times;</button>
+      <h3>${escapeHtml(s.name)} — ${periodLabel(currentPeriod)}</h3>
+
+      <div class="field"><label>Basic Salary (KES)</label><input type="number" id="p_basic" value="${p.basicSalary}" oninput="updatePayPreview()"></div>
+
+      <div class="section-title">Allowances</div>
+      <div class="grid">
+        <div class="field"><label>House</label><input type="number" id="p_house" value="${p.allowHouse}" oninput="updatePayPreview()"></div>
+        <div class="field"><label>Transport</label><input type="number" id="p_transport" value="${p.allowTransport}" oninput="updatePayPreview()"></div>
+      </div>
+      <div class="field"><label>Other Allowance</label><input type="number" id="p_allowother" value="${p.allowOther}" oninput="updatePayPreview()"></div>
+
+      <div class="section-title">Overtime</div>
+      <div class="grid">
+        <div class="field"><label>Hours</label><input type="number" id="p_othours" value="${p.otHours}" oninput="updatePayPreview()"></div>
+        <div class="field"><label>Rate / hr</label><input type="number" id="p_otrate" value="${p.otRate}" oninput="updatePayPreview()"></div>
+      </div>
+      <div class="field"><label>Or Fixed Overtime Amount (overrides hours×rate)</label><input type="number" id="p_otmanual" value="${p.overtimeManual}" oninput="updatePayPreview()"></div>
+
+      <div class="section-title">Deductions</div>
+      <div class="grid">
+        <div class="field"><label>Salary Advance</label><input type="number" id="p_advance" value="${p.dedAdvance}" oninput="updatePayPreview()"></div>
+        <div class="field"><label>NSSF</label><input type="number" id="p_nssf" value="${p.dedNSSF}" oninput="updatePayPreview()"></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>NHIF / SHIF</label><input type="number" id="p_nhif" value="${p.dedNHIF}" oninput="updatePayPreview()"></div>
+        <div class="field"><label>Other Deduction</label><input type="number" id="p_dedother" value="${p.dedOther}" oninput="updatePayPreview()"></div>
+      </div>
+
+      <div class="field"><label>Notes</label><textarea id="p_notes" rows="2">${escapeHtml(p.notes||'')}</textarea></div>
+
+      <div class="net-highlight">
+        <div style="font-size:.72rem;color:var(--muted)">NET PAY</div>
+        <div class="amt" id="netPreview">${money(calcNet(p))}</div>
+      </div>
+
+      <div class="row-actions">
+        <button class="btn" onclick="savePayroll('${staffId}')">Save</button>
+        <button class="btn gold" onclick="savePayroll('${staffId}', true)">Save & View Payslip</button>
+        <button class="btn outline" onclick="closeModal('payModal')">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function readPayForm(){
+  return {
+    basicSalary: parseFloat(document.getElementById('p_basic').value)||0,
+    allowHouse: parseFloat(document.getElementById('p_house').value)||0,
+    allowTransport: parseFloat(document.getElementById('p_transport').value)||0,
+    allowOther: parseFloat(document.getElementById('p_allowother').value)||0,
+    otHours: parseFloat(document.getElementById('p_othours').value)||0,
+    otRate: parseFloat(document.getElementById('p_otrate').value)||0,
+    overtimeManual: document.getElementById('p_otmanual').value,
+    dedAdvance: parseFloat(document.getElementById('p_advance').value)||0,
+    dedNSSF: parseFloat(document.getElementById('p_nssf').value)||0,
+    dedNHIF: parseFloat(document.getElementById('p_nhif').value)||0,
+    dedOther: parseFloat(document.getElementById('p_dedother').value)||0,
+    notes: document.getElementById('p_notes').value
+  };
+}
+function updatePayPreview(){
+  const p = readPayForm();
+  const el = document.getElementById('netPreview');
+  if(el) el.textContent = money(calcNet(p));
+}
+async function savePayroll(staffId, viewPayslip){
+  const p = readPayForm();
+  try{
+    toast('Saving…');
+    await fsSavePayroll(currentPeriod, staffId, p);
+    closeModal('payModal');
+    toast('Payroll saved');
+    if(viewPayslip) showPayslip(staffId);
+  }catch(e){
+    console.error('Save payroll failed', e);
+    toast('⚠️ Save failed — check connection', true);
+  }
+}
+
+function showPayslip(staffId){
+  const s = state.staff.find(x=>x.id===staffId);
+  const p = (state.payroll[currentPeriod]||{})[staffId];
+  if(!p){ toast('No payroll processed for this period', true); return; }
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg';
+  modal.id = 'payslipModal';
+  modal.innerHTML = `
+    <div class="modal">
+      <button class="close-x no-print" onclick="closeModal('payslipModal')">&times;</button>
+      <div class="payslip" id="payslipPrintArea">
+        <div class="ps-head">
+          <h2>Sang'a Comprehensive School</h2>
+          <div style="font-size:.8rem;color:var(--muted)">Payslip — ${periodLabel(currentPeriod)}</div>
+        </div>
+        <div class="ps-row"><span>Employee</span><span><strong>${escapeHtml(s.name)}</strong></span></div>
+        <div class="ps-row"><span>Role</span><span>${s.role}</span></div>
+        <div class="ps-row"><span>ID No.</span><span>${escapeHtml(s.idNumber||'—')}</span></div>
+        <hr class="divider">
+        <div class="section-title">Earnings</div>
+        <div class="ps-row"><span>Basic Salary</span><span>${money(p.basicSalary)}</span></div>
+        <div class="ps-row"><span>House Allowance</span><span>${money(p.allowHouse)}</span></div>
+        <div class="ps-row"><span>Transport Allowance</span><span>${money(p.allowTransport)}</span></div>
+        <div class="ps-row"><span>Other Allowance</span><span>${money(p.allowOther)}</span></div>
+        <div class="ps-row"><span>Overtime</span><span>${money(calcOvertime(p))}</span></div>
+        <div class="ps-row total"><span>Gross Pay</span><span>${money(calcGross(p))}</span></div>
+        <div class="section-title">Deductions</div>
+        <div class="ps-row"><span>Salary Advance</span><span>${money(p.dedAdvance)}</span></div>
+        <div class="ps-row"><span>NSSF</span><span>${money(p.dedNSSF)}</span></div>
+        <div class="ps-row"><span>NHIF / SHIF</span><span>${money(p.dedNHIF)}</span></div>
+        <div class="ps-row"><span>Other</span><span>${money(p.dedOther)}</span></div>
+        <div class="ps-row total"><span>Total Deductions</span><span>${money(calcDeductions(p))}</span></div>
+        <div class="net-highlight">
+          <div style="font-size:.72rem;color:var(--muted)">NET PAY</div>
+          <div class="amt">${money(calcNet(p))}</div>
+        </div>
+        ${p.notes ? `<div style="margin-top:10px;font-size:.78rem;color:var(--muted)">Notes: ${escapeHtml(p.notes)}</div>` : ''}
+      </div>
+      <div class="row-actions no-print">
+        <button class="btn gold" onclick="downloadPayslipPDF('${staffId}')">⬇ Download PDF</button>
+        <button class="btn outline" onclick="window.print()">Print</button>
+        <button class="btn outline" onclick="closeModal('payslipModal')">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ============ REPORTS ============ */
+function renderReports(){
+  const periods = Object.keys(state.payroll).sort().reverse();
+  const rows = periods.map(per=>{
+    const data = state.payroll[per];
+    let gross=0, ded=0, net=0, count=0;
+    Object.values(data).forEach(p=>{ gross+=calcGross(p); ded+=calcDeductions(p); net+=calcNet(p); count++; });
+    return `<tr>
+      <td>${periodLabel(per)}</td>
+      <td>${count}</td>
+      <td>${money(gross)}</td>
+      <td>${money(ded)}</td>
+      <td><strong>${money(net)}</strong></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <h2>Payroll History</h2>
+    ${periods.length===0 ? '<div class="empty">No payroll processed yet.</div>' : `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Period</th><th>Staff</th><th>Gross</th><th>Deductions</th><th>Net</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`}
+  </div>
+  <div class="card">
+    <h2>Payslips — ${periodLabel(currentPeriod)}</h2>
+    <div class="row-actions">
+      ${state.staff.filter(s=>(state.payroll[currentPeriod]||{})[s.id]).map(s=>
+        `<button class="btn small outline" onclick="showPayslip('${s.id}')">${escapeHtml(s.name)}</button>`
+      ).join('') || '<span class="empty">No payslips for this period</span>'}
+    </div>
+  </div>`;
+}
+
+/* ============ SETTINGS / BACKUP ============ */
+function renderSettings(){
+  const you = getEditorName();
+  return `
+  <div class="card">
+    <h2>Sync Status</h2>
+    <div class="ps-row"><span>Cloud sync</span><span>${firebaseReady ? '🟢 Connected' : '⚠️ Not connected'}</span></div>
+    <div class="ps-row"><span>Editing as</span><span>${escapeHtml(you)}</span></div>
+    <button class="btn small outline" onclick="changeEditorName()" style="margin-top:6px">Change my name</button>
+  </div>
+  <div class="card">
+    <h2>Backup & Restore</h2>
+    <p style="font-size:.82rem;color:var(--muted)">Data now syncs live to the cloud across all devices. Still worth keeping a periodic offline backup just in case.</p>
+    <div class="row-actions">
+      <button class="btn" onclick="exportData()">⬇ Export Backup (JSON)</button>
+      <button class="btn outline" onclick="document.getElementById('importFile').click()">⬆ Import Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+  <div class="card">
+    <h2>App Info</h2>
+    <div class="ps-row"><span>Staff Records</span><span>${state.staff.length}</span></div>
+    <div class="ps-row"><span>Payroll Periods</span><span>${Object.keys(state.payroll).length}</span></div>
+    <div class="ps-row"><span>Storage</span><span>Cloud (Firestore) — live sync</span></div>
+  </div>
+  <div class="card">
+    <h2 style="color:var(--danger);border-left-color:var(--danger)">Danger Zone</h2>
+    <button class="btn danger" onclick="clearAllData()">Erase All Data (everyone, everywhere)</button>
+  </div>`;
+}
+function changeEditorName(){
+  const name = prompt("Update your name:", getEditorName());
+  if(name && name.trim()){
+    localStorage.setItem(EDITOR_KEY, name.trim());
+    toast('Name updated');
+    render();
+  }
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sanga-payroll-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+}
+async function importData(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed.staff || !parsed.payroll){ toast('Invalid backup file', true); return; }
+      if(!confirm('This will upload all records from this backup to the shared cloud database, visible to everyone. Continue?')) return;
+      toast('Restoring…');
+      for(const s of parsed.staff){
+        const id = s.id || newStaffId();
+        const {id: _drop, ...data} = s;
+        await fsSaveStaff(id, data);
+      }
+      for(const period of Object.keys(parsed.payroll)){
+        for(const staffId of Object.keys(parsed.payroll[period])){
+          await fsSavePayroll(period, staffId, parsed.payroll[period][staffId]);
+        }
+      }
+      toast('Backup restored');
+    }catch(e){
+      console.error('Import failed', e);
+      toast('Could not restore backup', true);
+    }
+  };
+  reader.readAsText(file);
+}
+async function clearAllData(){
+  if(!confirm('This will permanently erase ALL staff and payroll data for EVERYONE using this app. Continue?')) return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  try{
+    toast('Erasing…');
+    for(const s of state.staff){ await fsDeleteStaff(s.id); }
+    for(const period of Object.keys(state.payroll)){
+      for(const staffId of Object.keys(state.payroll[period])){
+        await deleteDoc(doc(db, 'payroll', period + '__' + staffId));
+      }
+    }
+    toast('All data erased');
+  }catch(e){
+    console.error('Erase failed', e);
+    toast('⚠️ Erase failed — check connection', true);
+  }
+}
+
+/* ============ MINI PDF ENGINE (no external libraries) ============ */
+/* Builds a real, valid PDF file entirely in-browser so it works fully offline. */
+const PDF_COLORS = {
+  forest: [0.106, 0.302, 0.231],
+  gold:   [0.788, 0.635, 0.153],
+  gray:   [0.42, 0.478, 0.447],
+  dark:   [0.118, 0.165, 0.141],
+  red:    [0.639, 0.239, 0.239],
+  black:  [0, 0, 0]
+};
+function pdfSanitize(str){
+  return String(str==null?'':str)
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^\x20-\x7E]/g,'');
+}
+function pdfEscape(str){
+  return pdfSanitize(str).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+}
+function pdfTextWidth(str, size, bold){
+  return pdfSanitize(str).length * size * (bold ? 0.60 : 0.52);
+}
+function newPdfDoc(width, height){
+  return { width, height, ops: [] };
+}
+function pdfColor(doc, name){
+  const c = PDF_COLORS[name] || PDF_COLORS.black;
+  doc.ops.push(`${c[0]} ${c[1]} ${c[2]} rg`);
+  doc.ops.push(`${c[0]} ${c[1]} ${c[2]} RG`);
+}
+function pdfText(doc, x, y, size, bold, str, color){
+  pdfColor(doc, color || 'black');
+  doc.ops.push(`BT /${bold?'F2':'F1'} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${pdfEscape(str)}) Tj ET`);
+}
+function pdfTextRight(doc, xRight, y, size, bold, str, color){
+  const w = pdfTextWidth(str, size, bold);
+  pdfText(doc, xRight - w, y, size, bold, str, color);
+}
+function pdfTextCenter(doc, xCenter, y, size, bold, str, color){
+  const w = pdfTextWidth(str, size, bold);
+  pdfText(doc, xCenter - w/2, y, size, bold, str, color);
+}
+function pdfRect(doc, x, y, w, h, color){
+  pdfColor(doc, color);
+  doc.ops.push(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+}
+function pdfLine(doc, x1, y1, x2, y2, lw, color){
+  pdfColor(doc, color);
+  doc.ops.push(`${lw} w`);
+  doc.ops.push(`${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
+}
+function buildPdfBytes(doc){
+  const content = doc.ops.join('\n');
+  const objects = [
+    `<< /Type /Catalog /Pages 2 0 R >>`,
+    `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`,
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${doc.width} ${doc.height}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>`,
+    `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`,
+    `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>`,
+    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((obj, i) => {
+    offsets.push(pdf.length);
+    pdf += `${i+1} 0 obj\n${obj}\nendobj\n`;
+  });
+  const xrefStart = pdf.length;
+  pdf += `xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+  for(let i=1;i<=objects.length;i++){
+    pdf += String(offsets[i]).padStart(10,'0') + ' 00000 n \n';
+  }
+  pdf += `trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+  return pdf;
+}
+function downloadBlob(str, filename, mime){
+  const blob = new Blob([str], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---- Payslip PDF layout (A4 portrait, 595 x 842 pt) ---- */
+function downloadPayslipPDF(staffId){
+  const s = state.staff.find(x=>x.id===staffId);
+  const p = (state.payroll[currentPeriod]||{})[staffId];
+  if(!s || !p){ toast('No payroll processed for this period', true); return; }
+
+  const W = 595, H = 842, M = 50;
+  const doc = newPdfDoc(W, H);
+  let y = H - 70;
+
+  pdfTextCenter(doc, W/2, y, 18, true, "SANG'A COMPREHENSIVE SCHOOL", 'forest');
+  y -= 20;
+  pdfTextCenter(doc, W/2, y, 11, false, `Payslip - ${periodLabel(currentPeriod)}`, 'gray');
+  y -= 10;
+  pdfRect(doc, M, y, W - M*2, 2, 'gold');
+  y -= 26;
+
+  pdfText(doc, M, y, 11, true, 'Employee:', 'dark');
+  pdfText(doc, M+90, y, 11, false, pdfSanitize(s.name), 'black');
+  y -= 16;
+  pdfText(doc, M, y, 11, true, 'Role:', 'dark');
+  pdfText(doc, M+90, y, 11, false, s.role, 'black');
+  y -= 16;
+  pdfText(doc, M, y, 11, true, 'ID No.:', 'dark');
+  pdfText(doc, M+90, y, 11, false, s.idNumber || '-', 'black');
+  y -= 28;
+
+  function sectionHeader(label){
+    pdfText(doc, M, y, 11, true, label.toUpperCase(), 'forest');
+    y -= 14;
+    pdfLine(doc, M, y+4, W-M, y+4, 0.5, 'gray');
+    y -= 12;
+  }
+  function row(label, amount, bold){
+    pdfText(doc, M, y, 10, !!bold, label, bold?'dark':'black');
+    pdfTextRight(doc, W-M, y, 10, !!bold, money(amount), bold?'dark':'black');
+    y -= 16;
+  }
+  function totalRow(label, amount){
+    pdfLine(doc, M, y+10, W-M, y+10, 0.75, 'forest');
+    y -= 2;
+    row(label, amount, true);
+    y -= 4;
+  }
+
+  sectionHeader('Earnings');
+  row('Basic Salary', p.basicSalary);
+  row('House Allowance', p.allowHouse);
+  row('Transport Allowance', p.allowTransport);
+  row('Other Allowance', p.allowOther);
+  row('Overtime', calcOvertime(p));
+  totalRow('Gross Pay', calcGross(p));
+  y -= 10;
+
+  sectionHeader('Deductions');
+  row('Salary Advance', p.dedAdvance);
+  row('NSSF', p.dedNSSF);
+  row('NHIF / SHIF', p.dedNHIF);
+  row('Other', p.dedOther);
+  totalRow('Total Deductions', calcDeductions(p));
+  y -= 20;
+
+  pdfRect(doc, M, y-24, W - M*2, 44, 'gold');
+  pdfTextCenter(doc, W/2, y+2, 9, true, 'NET PAY', 'dark');
+  pdfTextCenter(doc, W/2, y-16, 16, true, money(calcNet(p)), 'dark');
+  y -= 50;
+
+  if(p.notes){
+    pdfText(doc, M, y, 9, false, 'Notes: ' + p.notes, 'gray');
+    y -= 14;
+  }
+
+  pdfLine(doc, M, 60, W-M, 60, 0.5, 'gray');
+  pdfText(doc, M, 46, 8, false, 'Generated by Sang\'a Payroll Register - ' + new Date().toLocaleDateString('en-KE'), 'gray');
+
+  const pdfString = buildPdfBytes(doc);
+  const filename = `Payslip_${pdfSanitize(s.name).replace(/\s+/g,'_')}_${currentPeriod}.pdf`;
+  downloadBlob(pdfString, filename, 'application/pdf');
+  toast('Payslip PDF downloaded');
+}
+
+/* ============ UTIL ============ */
+function escapeHtml(str){
+  if(str===undefined||str===null) return '';
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ============ INIT ============ */
+renderNav();
+ensureEditorName();
+render();
+startSync();
+
+// Expose handlers used by inline onclick/onchange attributes (module scope isn't global by default)
+Object.assign(window, {
+  switchTab, openStaffModal, closeModal, saveStaff, deleteStaff,
+  changePeriod, openPayrollModal, updatePayPreview, savePayroll,
+  showPayslip, downloadPayslipPDF, exportData, importData, clearAllData,
+  changeEditorName
+});
+</script>
+</body>
+</html>
